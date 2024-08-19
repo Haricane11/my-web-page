@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile GPS Tracker</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+    <div id='map' style='width: 100%; height: 100vh;'></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaGFyaWNhbmUiLCJhIjoiY2x5NGlqODRvMDJ3NDJqcTNoaWc0cWJxaCJ9.HVFoICBbwGVSUy59cytw0Q';
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [0, 0],
+            zoom: 2
+        });
+
+        // Check if geolocation is available
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition((position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const lngLat = [longitude, latitude];
+
+                if (!window.marker) {
+                    window.marker = new mapboxgl.Marker().setLngLat(lngLat).addTo(map);
+                } else {
+                    window.marker.setLngLat(lngLat);
+                }
+
+                map.flyTo({ center: lngLat, zoom: 14 });
+            }, (error) => {
+                console.error('Error fetching GPS location:', error);
+            }, {
+                enableHighAccuracy: true
+            });
+        } else {
+            console.error('Geolocation is not supported by this browser.');
+        }
+    </script>
+</body>
+</html>
