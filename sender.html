@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Location</title>
+</head>
+<body>
+  <h1>Send Location</h1>
+  <button onclick="sendLocation()">Send My Location</button>
+  <p id="status"></p>
+  <script>
+    function sendLocation() {
+      const statusElement = document.getElementById('status');
+      if (navigator.geolocation) {
+        statusElement.textContent = 'Getting your location...';
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          fetch('https://sought-usefully-trout.ngrok-free.app/location', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              latitude,
+              longitude,
+              timestamp: new Date().toISOString()
+            })
+          }).then(response => {
+            if (response.ok) {
+              statusElement.textContent = 'Location sent successfully';
+            } else {
+              statusElement.textContent = 'Failed to send location';
+            }
+          }).catch(error => {
+            statusElement.textContent = 'Error sending location: ' + error.message;
+          });
+        }, (error) => {
+          statusElement.textContent = 'Error getting location: ' + error.message;
+        });
+      } else {
+        statusElement.textContent = 'Geolocation is not supported by this browser.';
+      }
+    }
+  </script>
+</body>
+</html>
