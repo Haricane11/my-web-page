@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Location</title>
+</head>
+<body>
+  <h1>Display Location</h1>
+  <p id="location">Fetching location...</p>
+  <script>
+    function fetchLocation() {
+      fetch('http://192.168.99.169:3000/location')
+        .then(response => response.json())
+        .then(data => {
+          if (data.latitude && data.longitude) {
+            document.getElementById('location').innerText = 
+              `Latitude: ${data.latitude}, Longitude: ${data.longitude}, Timestamp: ${data.timestamp}`;
+          } else {
+            document.getElementById('location').innerText = 'No location data available';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching location data:', error);
+        });
+    }
+
+    setInterval(()=> {
+      fetchLocation();
+    },3000)
+     
+  </script>
+</body>
+</html>
