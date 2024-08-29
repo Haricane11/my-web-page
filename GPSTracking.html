@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,29 +7,45 @@
 </head>
 <body>
   <h1>Send Location</h1>
-  <p id="text">Sending to server . . .</p>
+  <p id="text">Waiting for location update...</p>
   <script>
+    let lastCoords = { latitude: null, longitude: null };
+
     function sendLocation(position) {
       const { latitude, longitude } = position.coords;
-      fetch('https://sought-usefully-trout.ngrok-free.app/location', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          latitude,
-          longitude,
-          busLine_id: 117,
-          timestamp: new Date().toISOString()
+
+      // Check if the coordinates have changed
+      if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
+        // Update lastCoords with the new position
+        lastCoords = { latitude, longitude };
+
+        // Send the new coordinates to the server
+        fetch('https://sought-usefully-trout.ngrok-free.app/location', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            latitude,
+            longitude,
+            busLine_id: 117,
+            timestamp: new Date().toISOString()
+          })
         })
-      })
-      .then(response => {
-        if (response.ok) {
-          document.getElementById('text').innerHTML = 'Location sent successfully';
-        } else {
-          document.getElementById('text').innerHTML = 'Failed to send location';
-        }
-      });
+        .then(response => {
+          if (response.ok) {
+            document.getElementById('text').innerHTML = 'Location sent successfully';
+          } else {
+            document.getElementById('text').innerHTML = 'Failed to send location';
+          }
+        })
+        .catch(error => {
+          console.error('Error sending location:', error);
+          document.getElementById('text').innerHTML = 'Error sending location';
+        });
+      } else {
+        document.getElementById('text').innerHTML = 'Location unchanged, not sent';
+      }
     }
 
     if (navigator.geolocation) {
