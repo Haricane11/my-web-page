@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,35 +11,36 @@
   <h1>Send Location</h1>
   <p id="text">Sending to server . . .</p>
   <script>
-    function sendLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const { latitude, longitude } = position.coords;
-          fetch('https://sought-usefully-trout.ngrok-free.app/location', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              latitude,
-              longitude,
-              timestamp: new Date().toISOString()
-            })
-          })
-          .then(response => {
-            if (response.ok) {
-              document.getElementById('text').innerHTML = 'Location sent successfully';
-            } else {
-              document.getElementById('text').innerHTML = 'Failed to send location';
-            }
-          })
-        });
-      } else {
-        alert('Geolocation is not supported by this browser.');
-      }
+    function sendLocation(position) {
+      const { latitude, longitude } = position.coords;
+      fetch('https://sought-usefully-trout.ngrok-free.app/location', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          busLine_id: 117,
+          timestamp: new Date().toISOString()
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById('text').innerHTML = 'Location sent successfully';
+        } else {
+          document.getElementById('text').innerHTML = 'Failed to send location';
+        }
+      });
     }
 
-    setInterval(sendLocation, 1000);
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(sendLocation, (error) => {
+        document.getElementById('text').innerHTML = 'Failed to get location';
+      });
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
   </script>
 </body>
 </html>
