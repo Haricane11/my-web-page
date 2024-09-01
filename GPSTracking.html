@@ -10,51 +10,58 @@
   <p id="text">Waiting for location update...</p>
   <script>
     let lastCoords = { latitude: null, longitude: null };
+let lastUpdateTime = 0;
+const throttleInterval = 1000; // 1 second
 
-    function sendLocation(position) {
-      const { latitude, longitude } = position.coords;
+function sendLocation(position) {
+    const now = Date.now();
+    if (now - lastUpdateTime < throttleInterval) {
+        return; // Skip this update if it's within the throttle interval
+    }
+    lastUpdateTime = now;
 
-      // Check if the coordinates have changed
-      if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
+    const { latitude, longitude } = position.coords;
+
+    // Check if the coordinates have changed
+    if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
         // Update lastCoords with the new position
         lastCoords = { latitude, longitude };
 
         // Send the new coordinates to the server
         fetch('https://sought-usefully-trout.ngrok-free.app/location', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            latitude,
-            longitude,
-            busLine_id: 117,
-            timestamp: new Date().toISOString()
-          })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                latitude,
+                longitude,
+                busLine_id: 117,
+                timestamp: new Date().toISOString()
+            })
         })
         .then(response => {
-          if (response.ok) {
-            document.getElementById('text').innerHTML = 'Location sent successfully';
-          } else {
-            document.getElementById('text').innerHTML = 'Failed to send location';
-          }
+            if (response.ok) {
+                document.getElementById('text').innerHTML = 'Location sent successfully';
+            } else {
+                document.getElementById('text').innerHTML = 'Failed to send location';
+            }
         })
         .catch(error => {
-          console.error('Error sending location:', error);
-          document.getElementById('text').innerHTML = 'Error sending location';
+            console.error('Error sending location:', error);
+            document.getElementById('text').innerHTML = 'Error sending location';
         });
-      } else {
-        document.getElementById('text').innerHTML = 'Location unchanged, not sent';
-      }
     }
+}
 
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(sendLocation, (error) => {
+if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(sendLocation, (error) => {
         document.getElementById('text').innerHTML = 'Failed to get location';
-      });
-    } else {
-      alert('Geolocation is not supported by this browser.');
-    }
+    });
+} else {
+    alert('Geolocation is not supported by this browser.');
+}
+
   </script>
 </body>
 </html>
