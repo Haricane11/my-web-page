@@ -14,10 +14,11 @@
     function sendLocation(position) {
       const { latitude, longitude } = position.coords;
 
-      // Only send if the location has changed significantly
-      if (Math.abs(latitude - lastCoords.latitude) > 0.0001 || Math.abs(longitude - lastCoords.longitude) > 0.0001) {
+      // Check if the coordinates have changed
+      if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
         lastCoords = { latitude, longitude };
 
+        // Send the new coordinates to the server
         fetch('https://sought-usefully-trout.ngrok-free.app/location', {
           method: 'POST',
           headers: {
@@ -45,13 +46,13 @@
     }
 
     if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(sendLocation, (error) => {
-        document.getElementById('text').innerHTML = 'Failed to get location';
-      }, {
-        enableHighAccuracy: true, // Request high accuracy
-        timeout: 5000, // Set a timeout for location requests
-        maximumAge: 0 // Do not use cached location
-      });
+      // Enable high-accuracy mode for faster and more precise GPS data
+      navigator.geolocation.watchPosition(sendLocation, 
+        (error) => {
+          document.getElementById('text').innerHTML = 'Failed to get location';
+        }, 
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 1000 } // Updated accuracy settings
+      );
     } else {
       alert('Geolocation is not supported by this browser.');
     }
