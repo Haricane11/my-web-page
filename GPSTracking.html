@@ -16,6 +16,7 @@
 
       // Check if the coordinates have changed
       if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
+        // Update lastCoords with the new position
         lastCoords = { latitude, longitude };
 
         // Send the new coordinates to the server
@@ -46,13 +47,9 @@
     }
 
     if (navigator.geolocation) {
-      // Enable high-accuracy mode for faster and more precise GPS data
-      navigator.geolocation.watchPosition(sendLocation, 
-        (error) => {
-          document.getElementById('text').innerHTML = 'Failed to get location';
-        }, 
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 1000 } // Updated accuracy settings
-      );
+      navigator.geolocation.watchPosition(sendLocation, (error) => {
+        document.getElementById('text').innerHTML = 'Failed to get location';
+      });
     } else {
       alert('Geolocation is not supported by this browser.');
     }
