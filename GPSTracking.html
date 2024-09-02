@@ -10,14 +10,12 @@
   <p id="text">Waiting for location update...</p>
   <script>
     let lastCoords = { latitude: null, longitude: null };
-    const updateThreshold = 0.0005; // Set a threshold for updating location (change as needed)
 
     function sendLocation(position) {
       const { latitude, longitude } = position.coords;
 
-      // Check if the coordinates have changed significantly
-      if (Math.abs(latitude - lastCoords.latitude) > updateThreshold || 
-          Math.abs(longitude - lastCoords.longitude) > updateThreshold) {
+      // Check if the coordinates have changed
+      if (latitude !== lastCoords.latitude || longitude !== lastCoords.longitude) {
         // Update lastCoords with the new position
         lastCoords = { latitude, longitude };
 
@@ -51,10 +49,6 @@
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(sendLocation, (error) => {
         document.getElementById('text').innerHTML = 'Failed to get location';
-      }, {
-        enableHighAccuracy: true, // Request high accuracy location
-        maximumAge: 0,            // Do not use cached location
-        timeout: 5000             // Set a timeout for location requests
       });
     } else {
       alert('Geolocation is not supported by this browser.');
